@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOSTEL 7 MESS PORTAL | Residential Transparency System</title>
+
+    <!-- Pure CSS Stylesheet (Separation of Concerns) -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <!-- ====================================================================
+         1. Global Header & Top Navigation Bar
+         ==================================================================== -->
+    <header class="app-header">
+        <div class="header-inner">
+
+            <!-- Brand Logo & Title -->
+            <div class="brand-group" onclick="App.navigateTo('payments')">
+                <div class="brand-badge-icon">H7</div>
+                <div class="brand-titles">
+                    <span class="brand-main-title">HOSTEL 7 MESS PORTAL</span>
+                    <div class="brand-meta">
+                        <span>Residential Transparency</span>
+                        <span class="server-badge live">
+                            <span class="pulse-dot"></span> Hostel 7 Portal Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Navigation Links (Hidden when signed out) -->
+            <nav id="main-nav" class="nav-links hidden">
+                <button type="button" id="nav-btn-payments" class="nav-link-btn active" onclick="App.navigateTo('payments')">
+                    ₹ Payments Desk
+                </button>
+                <button type="button" id="nav-btn-complaints" class="nav-link-btn" onclick="App.navigateTo('complaints')">
+                    🛠️ Grievances
+                </button>
+                <button type="button" id="nav-btn-menu" class="nav-link-btn" onclick="App.navigateTo('menu')">
+                    📋 Weekly Mess Menu
+                </button>
+                <button type="button" id="nav-btn-admin" class="nav-link-btn hidden" onclick="App.navigateTo('admin')">
+                    👑 Host Console (Passwords)
+                </button>
+            </nav>
+
+            <!-- User Profile Pill & Sign Out (Hidden when signed out) -->
+            <div id="user-controls" class="user-controls hidden">
+                <div class="user-profile-badge">
+                    <div id="user-avatar" class="user-avatar-circle">U</div>
+                    <div class="user-info-text">
+                        <div id="user-display-name" class="user-name-label">Resident</div>
+                        <div id="user-display-roll" class="user-roll-label">23111004092</div>
+                    </div>
+                </div>
+                <button type="button" id="btn-host-unlock" class="btn btn-outline" style="padding: 6px 12px; font-size: 11px; border-color: #6366f1; color: #4338ca; background: #eef2ff;" onclick="App.promptHostUnlock()">
+                    👑 Host Mode
+                </button>
+                <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 11px;" onclick="App.logout()">
+                    Sign Out
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+
+
+    <!-- ====================================================================
+         2. Main Application Container
+         ==================================================================== -->
+    <main class="main-container">
+
+        <!-- ================================================================
+             SECTION A: AUTHENTICATION (Sign In & New Registration)
+             ================================================================ -->
+        <section id="section-auth" class="portal-section">
+            <div style="max-width: 460px; margin: 30px auto;">
+
+                <div class="card" style="box-shadow: var(--shadow-lg);">
+
+                    <!-- Header -->
+                    <div class="text-center" style="margin-bottom: 24px;">
+                        <div class="brand-badge-icon" style="margin: 0 auto 12px auto; width: 50px; height: 50px; font-size: 22px;">H7</div>
+                        <h2 style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--text-main);">
+                            Resident Portal Access
+                        </h2>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                            Sign in with your 11-digit Scholar Number or create a new profile
+                        </p>
+                    </div>
+
+                    <!-- Dual Tab Switcher -->
+                    <div style="display: flex; background: var(--bg-alt); padding: 4px; border-radius: var(--radius-md); margin-bottom: 20px;">
+                        <button type="button" id="tab-btn-login" class="btn btn-block" style="background: #ffffff; color: var(--primary); padding: 8px; font-size: 12px;" onclick="App.switchAuthTab('login')">
+                            Sign In
+                        </button>
+                        <button type="button" id="tab-btn-register" class="btn btn-block" style="background: transparent; color: var(--text-muted); padding: 8px; font-size: 12px;" onclick="App.switchAuthTab('register')">
+                            New Registration
+                        </button>
+                    </div>
+
+                    <!-- Alert message container -->
+                    <div id="auth-alert" class="alert alert-danger hidden"></div>
+
+                    <!-- 1. Sign In Form -->
+                    <form id="form-login" onsubmit="App.handleLoginSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="login-roll">Scholar Number / User ID *</label>
+                            <input type="text" id="login-roll" class="form-input font-mono" placeholder="e.g. 23111004092" required>
+                            <span class="form-hint">College 11-digit scholar number or staff code</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="login-password">Password *</label>
+                            <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block" style="padding: 12px;">
+                            Sign In to Portal &rarr;
+                        </button>
+                    </form>
+
+                    <!-- 2. New Registration Form -->
+                    <form id="form-register" class="hidden" onsubmit="App.handleRegisterSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="reg-name">Full Name *</label>
+                            <input type="text" id="reg-name" class="form-input" placeholder="e.g. Ananya Sharma" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="reg-roll">Scholar Number (11-Digits) *</label>
+                            <input type="text" id="reg-roll" class="form-input font-mono" placeholder="e.g. 23111004092" required>
+                            <span class="form-hint">Your allotted college scholar number</span>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="reg-room">Hostel & Room No.</label>
+                                <input type="text" id="reg-room" class="form-input" placeholder="e.g. Room 204, H7">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="reg-role">Role *</label>
+                                <select id="reg-role" class="form-select">
+                                    <option value="student" selected>Student Resident</option>
+                                    <option value="reviewer">Reviewer / Caretaker</option>
+                                    <option value="admin">Chief Warden / Admin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="reg-email">Email Address</label>
+                            <input type="email" id="reg-email" class="form-input" placeholder="e.g. scholar@hostel7.college.edu">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="reg-pass">Create Password *</label>
+                            <input type="password" id="reg-pass" class="form-input" placeholder="Minimum 6 characters" required>
+                        </div>
+
+                        <button type="submit" id="btn-register-submit" class="btn btn-primary btn-block" style="padding: 12px;">
+                            Create Account & Sign In &rarr;
+                        </button>
+                    </form>
+
+                    <!-- Portal Version Footer -->
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-muted);">
+                        Hostel 7 Resident Portal &bull; Official Digital Transparency System
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+
+        <!-- ================================================================
+             SECTION B: PAYMENTS (Fee Proof Submission & Clearance Receipts)
+             ================================================================ -->
+        <section id="section-payments" class="portal-section hidden">
+
+            <!-- Hero Banner -->
+            <div class="hero-banner hero-banner-dark">
+                <span class="hero-pill">₹ Mess Fee Clearance Module</span>
+                <h1 class="hero-heading">Hostel 7 Payment Proof Desk</h1>
+                <p class="hero-description">
+                    Submit your monthly mess fee bank transaction proof and generate your official digital clearance slip for warden audit.
+                </p>
+            </div>
+
+            <!-- Payments Sub-Navigation Tabs -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <button type="button" id="pay-subtab-submit" class="btn btn-primary" onclick="App.switchPaymentSubTab('submit')">
+                    + Submit Payment Proof
+                </button>
+                <button type="button" id="pay-subtab-history" class="btn btn-outline" onclick="App.switchPaymentSubTab('history')">
+                    My Payments History
+                </button>
+            </div>
+
+            <!-- Panel 1: Submit Payment Form -->
+            <div id="panel-payment-submit">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start;">
+
+                    <!-- Form Card -->
+                    <div class="card">
+                        <div class="card-header-clean">
+                            <h3 class="card-title">Submit Mess Fee Payment Proof</h3>
+                            <p class="card-subtitle">Fill in your transaction reference and attach the original bank transfer screenshot.</p>
+                        </div>
+
+                        <div id="payment-alert" class="alert alert-danger hidden"></div>
+
+                        <form id="form-payment" onsubmit="App.handlePaymentSubmit(event)">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="pay-roll">Student Scholar Number</label>
+                                    <input type="text" id="pay-roll" class="form-input font-mono" readonly style="background: var(--bg-alt); color: var(--text-muted);">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="pay-month">Billing Month (YYYY-MM) *</label>
+                                    <input type="month" id="pay-month" class="form-input" value="2026-10" required>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="pay-amount">Amount Paid (₹) *</label>
+                                    <input type="number" id="pay-amount" class="form-input" value="3600" min="1" required style="font-weight: 800;">
+                                    <span class="form-hint">Standard monthly mess fee: ₹3,600</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="pay-txid">Transaction ID / UTR Reference *</label>
+                                    <input type="text" id="pay-txid" class="form-input font-mono" placeholder="e.g. UPI-AXIS-202610-88491" required>
+                                    <span class="form-hint">6–50 chars (letters, numbers, dot, hyphen only)</span>
+                                </div>
+                            </div>
+
+                            <!-- Screenshot Upload Dropzone -->
+                            <div class="form-group">
+                                <label class="form-label">Payment Screenshot (JPG, PNG, PDF; Max 2 MB) *</label>
+                                <div class="dropzone-box" onclick="document.getElementById('pay-file').click()">
+                                    <input type="file" id="pay-file" class="hidden" accept="image/jpeg,image/png,application/pdf" onchange="App.handlePaymentFileSelected(event)">
+                                    <div id="dropzone-content">
+                                        <div style="font-size: 28px;">📸</div>
+                                        <div class="dropzone-title">Click to Upload Payment Screenshot</div>
+                                        <div class="dropzone-desc">Must clearly show Amount, Date, and 12-digit UTR</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="btn-payment-submit" class="btn btn-primary btn-block" style="padding: 14px;">
+                                Submit Payment for Warden Audit &rarr;
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Bank Account Info Card -->
+                    <div class="card" style="background: #ffffff;">
+                        <div class="card-header-clean">
+                            <span class="meal-badge meal-badge-bf">Official Payment Channel</span>
+                            <h4 class="card-title" style="font-size: 16px; margin-top: 4px;">Hostel 07 SBI Mess Fund</h4>
+                        </div>
+
+                        <div style="background: var(--bg-alt); padding: 16px; border-radius: var(--radius-md); font-size: 12px; line-height: 2;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Account Name:</span>
+                                <strong>Hostel 07 Mess Fund</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Account Number:</span>
+                                <strong class="font-mono">30881920041</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">IFSC Code:</span>
+                                <strong class="font-mono">SBIN0001042</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--text-muted);">Bank & Branch:</span>
+                                <span>SBI College Campus</span>
+                            </div>
+                        </div>
+
+                        <div class="baseline-notice-box" style="margin-top: 16px; margin-bottom: 0;">
+                            <strong>Rule:</strong> Ensure your transaction ID matches your bank SMS/app exactly. Duplicate references are automatically rejected.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Panel 2: Prominent Official Clearance Receipt Screen -->
+            <div id="panel-payment-receipt" class="hidden">
+                <div class="receipt-wrapper">
+                    <div style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+                        <span class="meal-badge meal-badge-di">Official Verified Submission</span>
+                        <h2 style="font-family: var(--font-heading); font-size: 22px; font-weight: 800; margin-top: 6px;">
+                            Hostel 7 Mess Fee Clearance Slip
+                        </h2>
+                        <p style="font-size: 12px; color: var(--text-muted);">
+                            Retain this timestamped digital receipt for semester mess clearance.
+                        </p>
+                    </div>
+
+                    <!-- Receipt Number -->
+                    <div class="receipt-highlight-box">
+                        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary);">Official Receipt Number</span>
+                        <div id="receipt-no" class="receipt-number-large">H7-REC-202610-1001</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                            Submitted On: <strong id="receipt-time" style="color: var(--text-main);">19 Oct 2026, 05:30 PM IST</strong>
+                        </div>
+                    </div>
+
+                    <!-- Receipt Details Grid -->
+                    <div class="receipt-details-list">
+                        <div class="receipt-row">
+                            <span class="receipt-row-label">Student Scholar Number:</span>
+                            <span id="receipt-roll" class="receipt-row-val font-mono">23111004092</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-row-label">Student Name:</span>
+                            <span id="receipt-name" class="receipt-row-val">Resident</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-row-label">Fee Month:</span>
+                            <span id="receipt-month" class="receipt-row-val">2026-10</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-row-label">Amount Paid:</span>
+                            <span id="receipt-amount" class="receipt-amount-highlight">₹ 3,600</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-row-label">Transaction Reference (UTR):</span>
+                            <span id="receipt-txid" class="receipt-row-val font-mono" style="color: var(--primary);">UPI-AXIS-202610-88491</span>
+                        </div>
+                    </div>
+
+                    <!-- Screenshot Preview -->
+                    <div style="margin-top: 14px;">
+                        <span class="form-label">Attached Bank Screenshot:</span>
+                        <div style="max-height: 200px; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-alt); display: flex; align-items: center; justify-content: center; padding: 10px;">
+                            <img id="receipt-img" src="assets/sample-receipt.svg" alt="Proof" style="max-height: 180px; object-fit: contain;">
+                        </div>
+                    </div>
+
+                    <!-- Receipt Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn btn-secondary btn-block" onclick="window.print()">
+                            🖨️ Print / Save as PDF
+                        </button>
+                        <button type="button" class="btn btn-primary btn-block" onclick="App.switchPaymentSubTab('history')">
+                            View My Payments History &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: My Payments History List -->
+            <div id="panel-payment-history" class="hidden">
+                <div class="card">
+                    <div class="card-header-clean" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="card-title">My Mess Fee Submissions</h3>
+                            <p class="card-subtitle">Review previous fee clearance status and warden audit decisions</p>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="App.switchPaymentSubTab('submit')">
+                            + Submit New Payment
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Payment List Slot -->
+                    <div id="payments-list-container">
+                        <!-- Populated by App.renderPaymentsHistory() -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================================
+             SECTION C: COMPLAINTS (Grievance Redressal & Timeline)
+             ================================================================ -->
+        <section id="section-complaints" class="portal-section hidden">
+
+            <!-- Hero Banner -->
+            <div class="hero-banner hero-banner-dark">
+                <span class="hero-pill">🛠️ Grievance Redressal Module</span>
+                <h1 class="hero-heading">Hostel 7 Grievance & Maintenance</h1>
+                <p class="hero-description">
+                    Report mess food quality or room infrastructure issues. Dispatched directly to warden desk with step-by-step progress tracking.
+                </p>
+            </div>
+
+            <!-- Sub Navigation Tabs -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <button type="button" id="cmp-subtab-submit" class="btn btn-primary" onclick="App.switchComplaintSubTab('submit')">
+                    + File New Grievance
+                </button>
+                <button type="button" id="cmp-subtab-history" class="btn btn-outline" onclick="App.switchComplaintSubTab('history')">
+                    My Complaints Timeline
+                </button>
+            </div>
+
+            <!-- Panel 1: File Grievance Form -->
+            <div id="panel-complaint-submit">
+                <div class="card" style="max-width: 680px; margin: 0 auto;">
+                    <div class="card-header-clean">
+                        <h3 class="card-title">Register Grievance / Maintenance Issue</h3>
+                        <p class="card-subtitle">Please provide specific details to help the maintenance staff locate and resolve the issue quickly.</p>
+                    </div>
+
+                    <div id="complaint-alert" class="alert alert-danger hidden"></div>
+
+                    <form id="form-complaint" onsubmit="App.handleComplaintSubmit(event)">
+                        <!-- Title with Live Counter (Max 150) -->
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label class="form-label" for="cmp-title" style="margin-bottom: 0;">Complaint Title / Summary *</label>
+                                <span id="title-counter" class="font-mono" style="font-size: 11px; color: var(--text-muted);">0 / 150</span>
+                            </div>
+                            <input type="text" id="cmp-title" class="form-input" maxlength="150" placeholder="e.g. 2nd Floor Dining Water Cooler RO Filter Beeping" oninput="App.updateComplaintCounters()" required>
+                        </div>
+
+                        <!-- Description with Live Counter (Max 2000) -->
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label class="form-label" for="cmp-desc" style="margin-bottom: 0;">Detailed Description *</label>
+                                <span id="desc-counter" class="font-mono" style="font-size: 11px; color: var(--text-muted);">0 / 2,000</span>
+                            </div>
+                            <textarea id="cmp-desc" class="form-textarea" rows="4" maxlength="2000" placeholder="State the exact room/location, when it occurred, or food batch details..." oninput="App.updateComplaintCounters()" required></textarea>
+                        </div>
+
+                        <!-- Optional Photo Proof -->
+                        <div class="form-group">
+                            <label class="form-label">Attach Photo Proof (Optional, JPG/PNG/PDF, Max 2 MB)</label>
+                            <div class="dropzone-box" onclick="document.getElementById('cmp-photo').click()">
+                                <input type="file" id="cmp-photo" class="hidden" accept="image/jpeg,image/png,application/pdf" onchange="App.handleComplaintFileSelected(event)">
+                                <div id="cmp-dropzone-content">
+                                    <div style="font-size: 24px;">📸</div>
+                                    <div class="dropzone-title">Click to attach photo of issue</div>
+                                    <div class="dropzone-desc">Recommended for fast plumbing, electrical, or food checks</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-complaint-submit" class="btn btn-primary btn-block" style="padding: 14px;">
+                            Submit Grievance Ticket &rarr;
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Panel 2: Complaints Timeline List -->
+            <div id="panel-complaint-history" class="hidden">
+                <div class="card">
+                    <div class="card-header-clean">
+                        <h3 class="card-title">My Registered Grievance Tickets</h3>
+                        <p class="card-subtitle">Live status tracking with transparent caretaker and warden audit notes</p>
+                    </div>
+
+                    <!-- Dynamic Complaints Slot -->
+                    <div id="complaints-list-container">
+                        <!-- Populated by App.renderComplaintsHistory() -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================================
+             SECTION D: WEEKLY MESS MENU (Interactive 7-Day Timetable Matrix)
+             ================================================================ -->
+        <section id="section-menu" class="portal-section hidden">
+
+            <!-- Hero Banner -->
+            <div class="hero-banner hero-banner-orange">
+                <span class="hero-pill">Hostel No.07 Dining Schedule &bull; October 2026</span>
+                <h1 class="hero-heading">Official Weekly Mess Timetable</h1>
+                <p class="hero-description">
+                    Full 7-day nutritional schedule prepared by the mess committee. Daily morning baseline served alongside all regular meal slots.
+                </p>
+            </div>
+
+            <!-- Daily Morning Baseline Banner -->
+            <div class="baseline-notice-box">
+                <span style="font-size: 20px;">🥛</span>
+                <div>
+                    <strong>Daily Morning Baseline:</strong> Bread-Butter, Fresh Banana, Hot Milk, Boiled Eggs & Sprouts available every morning at breakfast.
+                    <br>
+                    <span style="font-size: 11px; opacity: 0.9;">Lunch & Dinner served with fresh green salad, lemon pickle, and seasonal raita.</span>
+                </div>
+            </div>
+
+            <!-- Complete 7-Day Matrix Table -->
+            <div class="mess-table-wrapper">
+                <table class="mess-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;">Day</th>
+                            <th style="width: 22%;">Breakfast<br><span style="font-size: 10px; font-weight: normal; opacity: 0.8;">07:30 AM – 09:30 AM</span></th>
+                            <th style="width: 25%;">Lunch<br><span style="font-size: 10px; font-weight: normal; opacity: 0.8;">12:30 PM – 02:30 PM</span></th>
+                            <th style="width: 16%;">Evening Tea<br><span style="font-size: 10px; font-weight: normal; opacity: 0.8;">05:00 PM – 06:00 PM</span></th>
+                            <th style="width: 25%;">Dinner<br><span style="font-size: 10px; font-weight: normal; opacity: 0.8;">08:00 PM – 10:00 PM</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Monday -->
+                        <tr>
+                            <td class="mess-day-cell">Monday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Hot Indori Poha with Sev & Fried Peanuts</strong>, Fresh Jalebi, Mint Chutney</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Rajma Masala</strong>, Aloo Gobi Dry, Phulka Roti, Steamed Jeera Rice, Boondi Raita, Salad & Pickle</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Masala Tea</strong> + Parle-G & Cream Biscuits</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Shahi Paneer (Veg) / Egg Curry</strong>, Tawa Roti, Dal Fry, Jeera Rice, Hot Gulab Jamun</div>
+                            </td>
+                        </tr>
+
+                        <!-- Tuesday -->
+                        <tr>
+                            <td class="mess-day-cell">Tuesday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Crispy Aloo Paratha</strong> with Fresh Curd, Butter Cube & Mixed Pickle</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Dal Tadka</strong>, Bhindi Do Pyaza, Phulka Roti, Jeera Rice, Plain Curd, Fresh Cucumber Salad</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Ginger Tea</strong> + Crispy Veg Samosa with Mint Chutney</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Mix Veg Curry</strong>, Dal Makhani, Phulka Roti, Steamed Basmati Rice, Green Salad</div>
+                            </td>
+                        </tr>
+
+                        <!-- Wednesday -->
+                        <tr>
+                            <td class="mess-day-cell">Wednesday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Steamed Idli Sambhar</strong> with Fresh Coconut Chutney & Tomato Dip</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Amritsari Chole Masala</strong>, Lauki Kofta Curry, Phulka Roti, Steamed Rice, Salad</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Masala Tea</strong> + Crispy Onion Pakoda with Tamarind Chutney</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Dum Aloo Kashmiri</strong>, Moong Dal Fry, Phulka Roti, Steamed Rice, Rice Kheer (Sweet)</div>
+                            </td>
+                        </tr>
+
+                        <!-- Thursday -->
+                        <tr>
+                            <td class="mess-day-cell">Thursday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Methi Thepla with Pickle</strong> / Hot Poori Bhaji with Sooji Halwa</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Punjabi Kadhi Pakoda</strong>, Aloo Jeera Dry, Phulka Roti, Steamed Rice, Roasted Papad</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Tea</strong> + Light Roasted Namkeen Sev & Murmura</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Paneer Butter Masala (Veg) / Chicken Masala</strong>, Phulka Roti, Veg Pulao, Onion Salad</div>
+                            </td>
+                        </tr>
+
+                        <!-- Friday -->
+                        <tr>
+                            <td class="mess-day-cell">Friday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Mumbai Style Pav Bhaji</strong> with Toasted Butter Pav, Chopped Onions & Lemon</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Dal Fry</strong>, Baingan Bharta, Tawa Roti, Steamed Rice, Boondi Raita, Salad & Pickle</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Ginger Tea</strong> + Crispy Vegetable Cutlet with Sauce</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Kadhai Paneer</strong>, Chana Dal Fry, Phulka Roti, Steamed Rice, Moong Dal Halwa</div>
+                            </td>
+                        </tr>
+
+                        <!-- Saturday -->
+                        <tr>
+                            <td class="mess-day-cell">Saturday</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Breakfast</span>
+                                <div><strong>Crispy Onion Uttapam / Plain Dosa</strong> with Hot Sambhar & Coconut Chutney</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Chana Dal Tadka</strong>, Aloo Shimla Mirch Dry, Phulka Roti, Jeera Rice, Fresh Curd</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Hot Masala Tea</strong> + Roasted Masala Peanuts</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Dinner</span>
+                                <div><strong>Hyderabadi Veg Dum Biryani</strong>, Mirchi Ka Salan, Dal Makhani, Mixed Vegetable Raita</div>
+                            </td>
+                        </tr>
+
+                        <!-- Sunday -->
+                        <tr>
+                            <td class="mess-day-cell" style="color: #ea580c;">Sunday (Special)</td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-bf">Special</span>
+                                <div><strong>Hot Chole Bhature Special</strong> with Raw Onion Salad, Green Chilli & Carrot Pickle</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-lu">Lunch</span>
+                                <div><strong>Dal Tadka</strong>, Seasonal Veg Curry, Phulka Roti, Jeera Rice, Roasted Papad, Salad</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-tea">Evening</span>
+                                <div><strong>Special Cardamom Tea</strong> + Bakery Cookies / Rusk</div>
+                            </td>
+                            <td class="mess-meal-cell">
+                                <span class="meal-badge meal-badge-di">Feast</span>
+                                <div><strong>Matar Paneer (Veg) / Special Non-Veg Curry</strong>, Butter Naan / Tawa Roti, Veg Pulao, Hot Rasgulla / Ice Cream</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- View Official Notice Sheet Image -->
+            <div style="margin-top: 20px; text-align: center;">
+                <button type="button" class="btn btn-outline" onclick="App.toggleNoticeModal(true)">
+                    📄 View Original Signed Notice Sheet
+                </button>
+            </div>
+
+            <!-- Notice Sheet Modal -->
+            <div id="notice-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px;">
+                <div style="background: #ffffff; border-radius: var(--radius-xl); max-width: 600px; width: 100%; padding: 20px; box-shadow: var(--shadow-xl); position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="font-family: var(--font-heading); font-weight: 800; font-size: 16px;">Hostel 07 Signed Menu Document</h4>
+                        <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" onclick="App.toggleNoticeModal(false)">✕ Close</button>
+                    </div>
+                    <div style="max-height: 70vh; overflow-y: auto; text-align: center;">
+                        <img src="assets/menu-2026-10.jpg" alt="Hostel Menu Notice" style="max-width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+
+        <!-- ================================================================
+             SECTION E: REGISTERED STUDENTS & RESIDENTS DIRECTORY (ADMIN DESK)
+             ================================================================ -->
+        <section id="section-admin" class="portal-section hidden">
+
+            <!-- Hero Banner -->
+            <div class="hero-banner hero-banner-dark">
+                <span class="hero-pill" style="background: rgba(239, 68, 68, 0.3); color: #fecaca; border: 1px solid rgba(239, 68, 68, 0.4);">🔒 Confidential Host / Warden Master Console</span>
+                <h1 class="hero-heading">Registered Students & Credentials Directory</h1>
+                <p class="hero-description">
+                    Private Host Access: Only you as the Host can view all student registrations and their set passwords. Normal student logins cannot see this console.
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-header-clean" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 class="card-title">Student Accounts & Password Master Record</h3>
+                        <p class="card-subtitle">Real-time credentials saved whenever a student submits their registration</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button type="button" id="btn-toggle-pw" class="btn btn-outline" style="font-size: 11px; padding: 6px 12px; background: #ffffff;" onclick="App.togglePasswordVisibility()">
+                            👁️ <span id="toggle-pw-label">Hide Passwords</span>
+                        </button>
+                        <button type="button" class="btn btn-primary" style="font-size: 11px; padding: 6px 12px;" onclick="App.exportUsersCSV()">
+                            📥 Export Passwords (Excel/CSV)
+                        </button>
+                        <span id="admin-user-count" class="badge badge-accepted" style="font-size: 12px; padding: 6px 14px;">Total: 0</span>
+                    </div>
+                </div>
+
+                <div class="mess-table-wrapper">
+                    <table class="mess-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Scholar Number</th>
+                                <th style="width: 22%;">Student Name</th>
+                                <th style="width: 16%;">Hostel & Room</th>
+                                <th style="width: 18%; background: #1e1b4b; color: #a5b4fc;">Student Password 🔑</th>
+                                <th style="width: 10%;">Role</th>
+                                <th style="width: 14%;">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-table-body">
+                            <!-- Populated dynamically by App.renderAdminUsers() -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ====================================================================
+         3. Global Footer
+         ==================================================================== -->
+    <footer class="app-footer">
+        <div>
+            <strong>HOSTEL 7 MESS TRANSPARENCY PORTAL</strong> &bull; Residential System &bull; Frontend Release
+        </div>
+        <div style="margin-top: 4px; font-size: 11px; opacity: 0.8;">
+            Hostel 7 Administration &bull; Timestamps in Indian Standard Time (IST)
+        </div>
+    </footer>
+
+
+
+    <!-- ====================================================================
+         4. Pure JavaScript Logic File (Separation of Concerns)
+         ==================================================================== -->
+    <script src="js/script.js"></script>
+
+</body>
+</html>
