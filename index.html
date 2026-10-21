@@ -6,7 +6,7 @@
     <title>HOSTEL 7 MESS PORTAL | Residential Transparency System</title>
 
     <!-- Pure CSS Stylesheet (Separation of Concerns) -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -42,9 +42,7 @@
                 <button type="button" id="nav-btn-menu" class="nav-link-btn" onclick="App.navigateTo('menu')">
                     📋 Weekly Mess Menu
                 </button>
-                <button type="button" id="nav-btn-admin" class="nav-link-btn hidden" onclick="App.navigateTo('admin')">
-                    👑 Host Console (Passwords)
-                </button>
+                
             </nav>
 
             <!-- User Profile Pill & Sign Out (Hidden when signed out) -->
@@ -56,9 +54,7 @@
                         <div id="user-display-roll" class="user-roll-label">23111004092</div>
                     </div>
                 </div>
-                <button type="button" id="btn-host-unlock" class="btn btn-outline" style="padding: 6px 12px; font-size: 11px; border-color: #6366f1; color: #4338ca; background: #eef2ff;" onclick="App.promptHostUnlock()">
-                    👑 Host Mode
-                </button>
+               
                 <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 11px;" onclick="App.logout()">
                     Sign Out
                 </button>
@@ -190,7 +186,7 @@
                 <span class="hero-pill">₹ Mess Fee Clearance Module</span>
                 <h1 class="hero-heading">Hostel 7 Payment Proof Desk</h1>
                 <p class="hero-description">
-                    Submit your monthly mess fee bank transaction proof and generate your official digital clearance slip for warden audit.
+                    Submit your mess fee bank transaction proof.
                 </p>
             </div>
 
@@ -233,8 +229,8 @@
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label class="form-label" for="pay-amount">Amount Paid (₹) *</label>
-                                    <input type="number" id="pay-amount" class="form-input" value="3600" min="1" required style="font-weight: 800;">
-                                    <span class="form-hint">Standard monthly mess fee: ₹3,600</span>
+                                    <input type="number" id="pay-amount" class="form-input" value="32500" min="1" required style="font-weight: 800;">
+                                    <span class="form-hint">Standard monthly mess fee: ₹32,500</span>
                                 </div>
 
                                 <div class="form-group">
@@ -335,7 +331,7 @@
                         </div>
                         <div class="receipt-row">
                             <span class="receipt-row-label">Amount Paid:</span>
-                            <span id="receipt-amount" class="receipt-amount-highlight">₹ 3,600</span>
+                            <span id="receipt-amount" class="receipt-amount-highlight">₹ 32,500</span>
                         </div>
                         <div class="receipt-row">
                             <span class="receipt-row-label">Transaction Reference (UTR):</span>
@@ -369,7 +365,7 @@
                     <div class="card-header-clean" style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h3 class="card-title">My Mess Fee Submissions</h3>
-                            <p class="card-subtitle">Review previous fee clearance status and warden audit decisions</p>
+                            <p class="card-subtitle">Review previous fee clearance status</p>
                         </div>
                         <button type="button" class="btn btn-primary" onclick="App.switchPaymentSubTab('submit')">
                             + Submit New Payment
@@ -397,7 +393,7 @@
                 <span class="hero-pill">🛠️ Grievance Redressal Module</span>
                 <h1 class="hero-heading">Hostel 7 Grievance & Maintenance</h1>
                 <p class="hero-description">
-                    Report mess food quality or room infrastructure issues. Dispatched directly to warden desk with step-by-step progress tracking.
+                    Report mess food quality or room infrastructure issues.
                 </p>
             </div>
 
@@ -763,7 +759,7 @@
     <!-- ====================================================================
          4. Pure JavaScript Logic File (Separation of Concerns)
          ==================================================================== -->
-    <script src="js/script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
